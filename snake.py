@@ -15,7 +15,7 @@ class Cube(object):
     def move(self, dx, dy):
         self.dx = dx
         self.dy = dy
-        self.pos(self.pos[0]+self.dx, self.pos[1]+self.dy)
+        self.pos = (self.pos[0]+self.dx, self.pos[1]+self.dy)
 
     def draw(self, surface, eyes=False):
         dis = self.w // self.rows
@@ -51,23 +51,23 @@ class Snake(object):
 
             keys = pygame.key.get_pressed()
 
-            for key in keys:
-                if key[pygame.K_LEFT]:
+            for _ in keys:
+                if keys[pygame.K_LEFT]:
                     self.dx = - 1
                     self.dy = 0
                     self.turns[self.head.pos[:]] = [self.dx, self.dy]
 
-                elif key[pygame.K_RIGHT]:
+                elif keys[pygame.K_RIGHT]:
                     self.dx = 1
                     self.dy = 0
                     self.turns[self.head.pos[:]] = [self.dx, self.dy]
 
-                elif key[pygame.K_UP]:
+                elif keys[pygame.K_UP]:
                     self.dx = 0
                     self.dy = -1
                     self.turns[self.head.pos[:]] = [self.dx, self.dy]
 
-                elif key[pygame.K_DOWN]:
+                elif keys[pygame.K_DOWN]:
                     self.dx = 0
                     self.dy = 1
                     self.turns[self.head.pos[:]] = [self.dx, self.dy]
@@ -120,9 +120,9 @@ def draw_grid(w, rows, surface):
 
 
 def re_draw_window(surface):
-    global rows, width, s
+    global rows, width, snake
     surface.fill((0, 0, 0))
-    s.draw(surface)
+    snake.draw(surface)
     draw_grid(width, rows, surface)
     pygame.display.update()
 
@@ -136,11 +136,11 @@ def message_box(subject, content):
 
 
 def main():
-    global width, rows, s
+    global width, rows, snake
     width = 500
     rows = 20
     win = pygame.display.set_mode((width, width))
-    s = Snake((255, 0, 0), (10, 10))
+    snake = Snake((255, 0, 0), (10, 10))
     flag = True
 
     clock = pygame.time.Clock()
@@ -148,7 +148,7 @@ def main():
     while flag:
         pygame.time.delay(50)
         clock.tick(10)  # framerate: 10(fps)
-
+        snake.move()
         re_draw_window(win)
 
 
