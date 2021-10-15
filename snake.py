@@ -1,5 +1,6 @@
 # pygame은 왼쪽상단에서 그린다.
 import pygame
+import random
 
 
 class Cube(object):
@@ -7,6 +8,9 @@ class Cube(object):
     w = 500
 
     def __init__(self, start, dx=1, dy=0, color=(255, 0, 0)):
+        """ 
+            start: tuple (x,y)
+         """
         self.pos = start
         self.dx = 1
         self.dy = 0
@@ -38,6 +42,9 @@ class Snake(object):
     turns = {}
 
     def __init__(self, color, pos):
+        """ 
+            pos: tuple(x,y)
+         """
         self.color = color
         self.head = Cube(pos)
         self.body.append(self.head)
@@ -96,7 +103,20 @@ class Snake(object):
         pass
 
     def add_cube(self):
-        pass
+        tail = self.body[-1]
+        dx, dy = tail.dx, tail.dy
+
+        if dx == 1 and dy == 0:
+            self.body.append(Cube((tail.pos[0]-1, tail.pos[1])))
+        elif dx == -1 and dy == 0:
+            self.body.append(Cube((tail.pos[0]+1, tail.pos[1])))
+        elif dx == 0 and dy == 1:
+            self.body.append(Cube((tail.pos[0], tail.pos[1]-1)))
+        elif dx == 0 and dy == -1:
+            self.body.append(Cube((tail.pos[0], tail.pos[1]-1)))
+
+        self.body[-1].dx = dx
+        self.body[-1].dy = dy
 
     def draw(self, surface):
         for i, v in enumerate(self.body):
@@ -120,15 +140,32 @@ def draw_grid(w, rows, surface):
 
 
 def re_draw_window(surface):
-    global rows, width, snake
+    global rows, width, snake, rand_snake
     surface.fill((0, 0, 0))
     snake.draw(surface)
+    rand_snake.draw(surface)
     draw_grid(width, rows, surface)
     pygame.display.update()
 
 
-def random_snack(rows, items):
-    pass
+def random_snake(rows, item):
+    """ 
+        item: Snake()
+     """
+    positions = item.body
+
+    while True:
+        x = random.randrange(rows)
+        y = random.randrange(rows)
+        if len(list(filter(lambda z: z.pos == (x, y), positions))) > 0:
+            """ 
+                filter(func, list): 리스트에 들어있는 원소들을 함수에 적용시켜 결과가 참인 값들로 새로운 리스트를 만든다.
+                positions: 뱀의 위치(positions)가 방금 생성한 뱀의 위치(x,y)와 같다면 다시 생성한다.
+             """
+            continue
+        else:
+            break
+    return (x, y)
 
 
 def message_box(subject, content):
@@ -136,11 +173,12 @@ def message_box(subject, content):
 
 
 def main():
-    global width, rows, snake
+    global width, rows, snake, rand_snake
     width = 500
     rows = 20
     win = pygame.display.set_mode((width, width))
     snake = Snake((255, 0, 0), (10, 10))
+    rand_snake = Cube(random_snake(rows, snake), color=(0, 255, 0))
     flag = True
 
     clock = pygame.time.Clock()
@@ -149,6 +187,14 @@ def main():
         pygame.time.delay(50)
         clock.tick(10)  # framerate: 10(fps)
         snake.move()
+        if snake.body[0].pos == rand_snake.pos:
+            snake.add_cube()
+            rand_snake = Cube(random_snake(rows, snake), color=(0, 255, 0))
+
+        for x in range(len(snake.body)):
+            if snake.body[x].pos in list(map(lambda z: z.pos, snake.body[x+1:])):
+                print('Score: ', len(snake.body))
+
         re_draw_window(win)
 
 
