@@ -1,6 +1,9 @@
 # pygame은 왼쪽상단에서 그린다.
+import math
 import pygame
 import random
+import tkinter as tk
+from tkinter import messagebox
 
 
 class Cube(object):
@@ -99,8 +102,13 @@ class Snake(object):
                 else:
                     v.move(v.dx, v.dy)
 
-    def reset(self):
-        pass
+    def reset(self, pos):
+        self.head = Cube(pos)
+        self.body = []
+        self.body.append(self.head)
+        self.turns = {}
+        self.dx = 0
+        self.dy = 1
 
     def add_cube(self):
         tail = self.body[-1]
@@ -169,7 +177,14 @@ def random_snake(rows, item):
 
 
 def message_box(subject, content):
-    pass
+    root = tk.Tk()
+    root.attributes("-topmost", True)
+    root.withdraw()
+    messagebox.showinfo(subject, content)
+    try:
+        root.destroy()
+    except:
+        pass
 
 
 def main():
@@ -188,12 +203,21 @@ def main():
         clock.tick(10)  # framerate: 10(fps)
         snake.move()
         if snake.body[0].pos == rand_snake.pos:
+            """ 
+                collision: 랜덤하게 만들어진 스네이크와 충돌 판정
+             """
             snake.add_cube()
             rand_snake = Cube(random_snake(rows, snake), color=(0, 255, 0))
 
         for x in range(len(snake.body)):
+            """ 
+                collision 2: 뱀 내부 충돌 판정
+             """
             if snake.body[x].pos in list(map(lambda z: z.pos, snake.body[x+1:])):
                 print('Score: ', len(snake.body))
+                message_box('You Lost!', 'Play again...')
+                snake.reset((10, 10))
+                break
 
         re_draw_window(win)
 
