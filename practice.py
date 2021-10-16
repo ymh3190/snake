@@ -1,16 +1,30 @@
 import pygame
-from pygame.constants import K_LEFT
 
 
 class Cube(object):
+    rows = 20
+    w = 500
+
     def __init__(self, start, dx=1, dy=0, color=(255, 0, 0)):
-        pass
+        self.pos = start
+        self.dx = 1
+        self.dy = 0
+        self.color = color
 
     def move(self, dx, dy):
-        pass
+        self.dx = dx
+        self.dy = dy
+        self.pos = (self.pos[0]+self.dx, self.pos[1]+self.dy)
 
     def draw(self, surface, eyes=False):
-        pass
+        dis = self.w // self.rows
+        i = self.pos[0]
+        j = self.pos[1]
+
+        """ 
+            왼쪽위를 기준으로 그리드크기만큼 간격두기 가로세로+1, 위아래양옆 크기-2
+         """
+        pygame.draw.rect(surface, self.color, (i*dis+1, j*dis+1, dis-2, dis-2))
 
 
 class Snake(object):
@@ -86,6 +100,13 @@ class Snake(object):
     def add_cube(self):
         pass
 
+    def draw(self, surface):
+        for i, c in enumerate(self.body):
+            if i == 0:
+                c.draw(surface, True)
+            else:
+                c.draw(surface)
+
 
 def draw_grid(w, rows, surface):
     sizeBtn = w // rows
@@ -105,8 +126,9 @@ def draw_grid(w, rows, surface):
 
 
 def re_draw_window(surface):
-    global width, rows
+    global width, rows, s
     surface.fill((0, 0, 0))
+    s.draw(surface)
     draw_grid(width, rows, surface)
     pygame.display.update()
 
@@ -120,10 +142,11 @@ def message_box(subject, content):
 
 
 def main():
-    global width, rows
+    global width, rows, s
     width = 500
     rows = 20
     win = pygame.display.set_mode((width, width))
+    s = Snake((255, 0, 0), (10, 10))
 
     clock = pygame.time.Clock()
     flag = True
@@ -131,7 +154,7 @@ def main():
     while flag:
         pygame.time.delay(50)
         clock.tick(10)
-
+        s.move()
         re_draw_window(win)
 
 
