@@ -1,5 +1,4 @@
 # pygame은 왼쪽상단에서 그린다.
-import math
 import pygame
 import random
 import tkinter as tk
